@@ -4,7 +4,7 @@ IKEv2：v2 的协议本身规定了所有 IKE 消息都隐含有 liveness check 
 
 其中在 IKEv2 中 delay 的作用是指dpd 探测报文发送间隔时间，而重传机制不依靠 delay 参数，也是依靠 retransmit 参数设置
 
-![企业微信截图_de04ff52-ca7a-4c55-bd68-9aaf0a323d2d.png](attachment:4cdccb8b-8eec-4fa0-ae63-08c120cdc870:企业微信截图_de04ff52-ca7a-4c55-bd68-9aaf0a323d2d.png)
+<img width="665" height="198" alt="image" src="https://github.com/user-attachments/assets/e8c5dcb3-bbdc-462a-9b9b-0ae28a26a1fe" />
 
 例如隧道发现 dpd 探测报文没有回复报文，则会触发重传，重传的间隔时间为 `retransmit_timeout=3s`，重传间隔时间为
 
