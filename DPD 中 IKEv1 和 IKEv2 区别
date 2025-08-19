@@ -1,0 +1,15 @@
+IKEv1：会用 `dpd_delay` 定时发 R-U-THERE，等不到回应就根据 `dpd_timeout` 来判定对端死亡。因此 IKEv1 下，`dpd_timeout` 决定了“最多等多久”才把对端认定为挂掉。也就是假设 `delay=3s，timeout=30s`，则会发送 10 个 dpd 探测包检测是否存活（直到 `timeout` 时间消耗完毕）。
+
+IKEv2：v2 的协议本身规定了所有 IKE 消息都隐含有 liveness check 的作用。例如：普通的 IKE INFORMATIONAL、CHILD_SA rekey、甚至配置更新消息都会证明对端在线。如果对端挂了，charon 会通过 IKEv2 retransmission 机制（重传 + 超时）来判定 peer 不可达（也就是配置文件 strongswan.conf 中的如下三个配置属性控制生效，分别是重传时间，重传间隔时间增长倍数和重传次数）。所以 IKEv2 不需要单独的 `dpd_timeout`，一旦对端无响应，IKEv2 的 retransmit 逻辑就会触发删除 IKE_SA/CHILD_SA。
+
+其中在 IKEv2 中 delay 的作用是指dpd 探测报文发送间隔时间，而重传机制不依靠 delay 参数，也是依靠 retransmit 参数设置
+
+![企业微信截图_de04ff52-ca7a-4c55-bd68-9aaf0a323d2d.png](attachment:4cdccb8b-8eec-4fa0-ae63-08c120cdc870:企业微信截图_de04ff52-ca7a-4c55-bd68-9aaf0a323d2d.png)
+
+例如隧道发现 dpd 探测报文没有回复报文，则会触发重传，重传的间隔时间为 `retransmit_timeout=3s`，重传间隔时间为
+
+```bash
+relative timeout = retransmit_timeout * retransmit_base ^ (n-1)
+```
+
+经过最大重传次数 `retransmit_tries=3`次之后断开。
